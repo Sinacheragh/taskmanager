@@ -13,14 +13,47 @@
 <body class="flex-col w-[100%] h-[100%] px-10 items-center">
     <p id="todolist" class="text-center mt-7 text-[60px]">To Do List</p>
     
-    <form class="max-w-sm mx-auto">
-        <label for="select" class="sr-only">Underline select</label>
+
+
+    
+
+    <!-- Modal toggle -->
+    <!-- Modal toggle -->
+    <div class="flex justify-center my-4">
+        <button data-modal-target="default-modal" data-modal-toggle="default-modal" class="w-100 text-white bg-[#14A44D] hover:bg-[#24C45D] focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer" type="button">
+            Add Task
+        </button>
+    </div>
+    
+    <!-- Main modal -->
+    <div id="default-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-2xl max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow-sm">
+                <form action="" class="flex flex-col p-10">
+                    <div class="relative z-0">
+                        <input type="text" id="floating_standard" class="block py-2.5 px-0 w-full text-sm text-gray-400 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
+                        <label for="floating_standard" class="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto">Floating standard</label>
+                    </div>
+
+                </form>
+                <!-- Modal footer -->
+                <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                    <button data-modal-hide="default-modal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Add</button>
+                    <button data-modal-hide="default-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">Discard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+  
+    <form class="w-1/2 max-w-sm mx-auto">
         <select id="select" class="block py-2.5 px-0 w-full text-[#000] bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-[#000] dark:border-gray-900 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
-            <option selected>ALL TASKS</option>
-            <option value="US" >READY TO START!</option>
-            <option value="CA" >INPROGRESS</option>
-            <option value="FR" >FINISHED</option>
-            <option value="DE" >EXPIERD</option>
+            <option selected value="all">ALL TASKS</option>
+            <option value="readyToStart" >READY TO START!</option>
+            <option value="inProgress" >INPROGRESS</option>
+            <option value="finished" >FINISHED</option>
+            <option value="expired" >EXPIERD</option>
         </select>
     </form>
   
@@ -52,21 +85,25 @@
 
         <div class=" hidden md:flex md:flex-col md:w-1/5 h-100% bg-[#333366] text-white p-3 mt-10 overflow-scroll">
             <p class="text-center text-[50px]">HISTORY</p>
-            <div class="flex flex-col">
-                <div class="flex flex-col justify-between text-black px-4 py-3 bg-gray-200 mt-4">
-                    <div class="flex flex-row justify-between"><span>task title</span><span class="text-[#14A44D]">finished</span></div>
-                    <a href="#" style="text-decoration: underline;">more details</a>
-                </div>
-                <div class="flex flex-col justify-between px-4 py-3 bg-gray-200 text-black mt-4">
-                    <div class="flex flex-row justify-between"><span>task title</span><span class="text-[#DC4C64]">expierd</span></div>
-                    <a href="#" style="text-decoration: underline;">more details</a>
-                </div>
+            <div id="histories" class="flex flex-col">
+                
+                
+
+
             </div>
         </div>
 
     </div>
 
 
+
+    <div class="hidden" id="history">
+        <div class="flex flex-row flex-wrap items-center justify-between px-4 py-3 bg-gray-200 text-black mt-4">
+            <div class="flex w-[100%] mb-5 flex-row justify-between"><span id="title">task title</span><span id="status" class="text-[#000]">expierd</span></div>
+            <a href="#" class="flex w-1/2" style="text-decoration: underline;">more details</a>
+            <button class="flex w-[80px] bg-white text-[#DC4C64]  items-center justify-center border hover:text-white hover:bg-[#DC4C64] w-1/2 border-[#DC4C64] hover:">remove</button>
+        </div>
+    </div>
 
     <div id="easy" class="hidden">
         <img width="40" height="40" src="https://img.icons8.com/external-icongeek26-glyph-icongeek26/64/external-Feather-hippie-icongeek26-glyph-icongeek26.png" alt="external-Feather-hippie-icongeek26-glyph-icongeek26"/>
@@ -181,8 +218,6 @@
         </svg>
     </div>
 
-
-
      <div id="readyToStart" class="hidden">
         <div class="card flex flex-wrap inset-shadow-sm bg-[#fff] p-3">
             <div id="title" class="w-2/3 my-2 text-start self-center">task title</div>
@@ -197,7 +232,6 @@
             </div>
         </div>
     </div>
-
      <div id="inProgress" class="hidden">
         <div class="card flex flex-wrap inset-shadow-sm bg-[#fff] p-3 mt-3">
             <div id="title" class="w-1/3 self-center text-start">task title</div>
@@ -217,7 +251,6 @@
             </div>
         </div>
     </div>
-
      <div id="finished" class="hidden">
         <div class="card flex mt-3 flex-wrap inset-shadow-sm bg-[#fff] p-3">
             <div id="title" class="w-2/3 mb-2 text-start">task title</div>
@@ -231,9 +264,8 @@
             </p>
         </div>
     </div>
-
      <div id="expired" class="hidden">
-        <div class="card flex mt-3 flex-wrap inset-shadow-sm bg-[#fff] p-3">
+        <div class=" card flex mt-3 flex-wrap inset-shadow-sm bg-[#fff] p-3">
             <div id="title" class="w-2/3 mb-2 text-start">task title</div>
             <div class="w-1/3 mb-2 text-end pe-1">expierd</div>
             <p id="details" class="w-3/5 h-[100px] overflow-scroll bg-gray-200 py-2">
@@ -252,5 +284,6 @@
      </div>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="./script.js"></script>
+
 </body>
 </html>
