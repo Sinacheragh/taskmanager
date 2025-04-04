@@ -1,4 +1,5 @@
 function compareDates(dateStr1, dateStr2) {
+    // تبدیل تاریخ‌ها به فرمت YYYY-MM-DD برای مقایسه صحیح
     const formatDate = (dateStr) => {
         const [month, day, year] = dateStr.split('/');
         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -19,6 +20,7 @@ async function fetchTasks() {
         const tasks = await response.json();
         const today = dayjs().startOf('day');
         
+        // پاک کردن محتوای قبلی
         ['mustDo', 'shouldDo', 'couldDo', 'ifIHaveTime'].forEach(id => {
             document.getElementById(id).innerHTML = `<p class="text-[25px]">${id.split(/(?=[A-Z])/).join(' ')}</p>`;
         });
@@ -28,13 +30,16 @@ async function fetchTasks() {
                 let taskTemplate = getTaskTemplate(task.taskstatus);
                 if (!taskTemplate) return;
                 
+                // پر کردن اطلاعات تسک
                 fillTaskDetails(taskTemplate, task);
                 
+                // بررسی تاریخ انقضا
                 if (task.taskstatus !== "finished" && today.isAfter(dayjs(task.taskExpiryDate, "MM/DD/YYYY"))) {
                     taskTemplate = expired.cloneNode(true);
                     fillTaskDetails(taskTemplate, task);
                 }
                 
+                // اضافه کردن به بخش مربوطه
                 document.getElementById(task.taskPriority).innerHTML += taskTemplate.innerHTML;
             }
         });
@@ -48,6 +53,7 @@ async function fetchTasks() {
 fetchTasks()
 
 
+// توابع کمکی
 function getTaskTemplate(status) {
     const templates = {
         readyToStart: document.getElementById('readyToStart'),
@@ -71,6 +77,7 @@ function fillTaskDetails(template, task) {
     const detailsElement = template.querySelector("#details");
     if (detailsElement) detailsElement.textContent = task.taskDetails;
     
+    // تنظیم ID برای دکمه‌ها
     template.querySelectorAll(".del, .ed, .finished, .remhis, .start-btn").forEach(btn => {
         btn.id = task.id;
     });
@@ -78,6 +85,11 @@ function fillTaskDetails(template, task) {
         btn.id = task.id;
         btn.dataset.taskId = task.id;
     });
+    const detailsBtn = template.querySelector(".details-btn");
+    if (detailsBtn) {
+        detailsBtn.dataset.taskId = task.id;
+        detailsBtn.textContent = "More Details"; // تغییر متن به انگلیسی برای یکپارچگی
+    }
 }
 
 function setupEventListeners(tasks) {
@@ -88,6 +100,7 @@ function setupEventListeners(tasks) {
             await openEditModal(taskId);
         }
     });
+    // حذف تسک
     document.querySelectorAll('.del').forEach(button => {
         button.addEventListener('click', async (event) => {
             event.preventDefault();
@@ -101,6 +114,7 @@ function setupEventListeners(tasks) {
         });
     });
     
+    // تکمیل تسک
     document.querySelectorAll(".finished").forEach(btn => {
         btn.addEventListener("click", async (event) => {
             event.preventDefault();
@@ -131,16 +145,19 @@ function setupEventListeners(tasks) {
                     throw new Error('تسک مورد نظر یافت نشد');
                 }
                 
+                // آپدیت وضعیت تسک
                 const updatedTask = {
                     ...task,
                     taskstatus: "inProgress"
                 };
                 
+                // ارسال درخواست به API
                 await axios.put(
                     `https://67e2e31497fc65f53538034c.mockapi.io/api/v1/tasks/${taskId}`,
                     updatedTask
                 );
                 
+                // ریلود صفحه برای نمایش تغییرات
                 location.reload();
                 
             } catch (error) {
@@ -155,6 +172,18 @@ function setupEventListeners(tasks) {
             await openEditModal(btn.id);
         });
     });
+    document.querySelectorAll('.details-btn').forEach(btn => {
+        btn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const taskId = event.target.dataset.taskId;
+            await showTaskDetails(taskId);
+        });
+    });
+
+    // هندلر برای بستن مودال
+    document.querySelector('[data-modal-hide="details-modal"]').addEventListener('click', () => {
+        document.getElementById('details-modal').classList.add('hidden');
+    });
 }
 document.getElementById("addtask").addEventListener("click", async function(event) {
     event.preventDefault();
@@ -168,6 +197,7 @@ document.getElementById("addtask").addEventListener("click", async function(even
         taskDetails: document.getElementById('det').value
     };
     
+    // اعتبارسنجی داده‌ها
     if (!formData.taskTitle || !formData.taskExpiryDate) {
         alert('Please fill all required fields');
         return;
@@ -198,18 +228,22 @@ async function openEditModal(taskId) {
         
         const task = await response.json();
         
+        // پر کردن فرم با اطلاعات
         document.getElementById('floating_standard').value = task.taskTitle;
         document.querySelector(`input[name="list-radio1"][value="${task.taskPriority}"]`).checked = true;
         document.querySelector(`input[name="list-radio3"][value="${task.taskdifficulty}"]`).checked = true;
         document.getElementById('default-datepicker').value = task.taskExpiryDate;
         document.getElementById('det').value = task.taskDetails;
 
+        // تغییر حالت به ویرایش
         isEditMode = true;
         currentEditingId = taskId;
 
+        // نمایش دکمه مناسب
         document.getElementById('addtask').classList.add('hidden');
         document.getElementById('saveChanges').classList.remove('hidden');
 
+        // باز کردن مودال
         const modal = document.getElementById('default-modal');
         modal.classList.remove('hidden');
         
@@ -261,3 +295,26 @@ document.querySelectorAll('[data-modal-hide="default-modal"]').forEach(button =>
         document.querySelector('form').reset();
     });
 });
+async function showTaskDetails(taskId) {
+    try {
+        const response = await fetch(`https://67e2e31497fc65f53538034c.mockapi.io/api/v1/tasks/${taskId}`);
+        if (!response.ok) throw new Error('Task not found');
+        
+        const task = await response.json();
+        
+        // پر کردن مودال با اطلاعات
+        document.getElementById('modal-task-title').textContent = task.taskTitle;
+        document.getElementById('modal-task-priority').textContent = task.taskPriority;
+        document.getElementById('modal-task-status').textContent = task.taskstatus;
+        document.getElementById('modal-task-difficulty').textContent = task.taskdifficulty;
+        document.getElementById('modal-task-expiry').textContent = task.taskExpiryDate;
+        document.getElementById('modal-task-details').textContent = task.taskDetails;
+        
+        // نمایش مودال
+        const modal = document.getElementById('details-modal');
+        modal.classList.remove('hidden');
+    } catch (error) {
+        console.error('Error fetching task details:', error);
+        alert('Failed to load task details');
+    }
+}
